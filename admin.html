@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inferno Pictures — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #050503;
+  --surface: #0c0b08;
+  --surface2: #141210;
+  --surface3: #1c1a16;
+  --border: rgba(244,140,6,0.08);
+  --border2: rgba(244,140,6,0.18);
+  --white: #f8f5f0;
+  --muted: rgba(248,245,240,0.38);
+  --muted2: rgba(248,245,240,0.6);
+  --accent: #f48c06;
+  --accent2: #ffba08;
+  --danger: #e05c5c;
+  --success: #5cba8a;
+  --info: #5c9be0;
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+  --sidebar: 248px;
+  --topbar: 64px;
+  --radius: 6px;
+}
+html { font-size: 14px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* LOGIN SCREEN */
+#loginScreen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9000;
+  background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1600&q=60');
+  background-size: cover; background-position: center;
+}
+#loginScreen::before {
+  content: ''; position: absolute; inset: 0;
+  background: rgba(10,10,9,0.88);
+}
+.login-card {
+  position: relative; z-index: 1;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  padding: 56px 48px;
+  width: 100%; max-width: 420px;
+}
+.login-logo {
+  font-family: var(--serif); font-size: 28px; font-weight: 300;
+  color: var(--white); text-align: center; margin-bottom: 8px;
+}
+.login-sub {
+  text-align: center; font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 40px;
+}
+.login-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.login-field label {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted);
+}
+.login-field input {
+  padding: 13px 16px; background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--white); font-family: var(--sans); font-size: 14px;
+  outline: none; transition: border-color 0.25s;
+}
+.login-field input:focus { border-color: var(--accent); }
+.login-btn {
+  width: 100%; padding: 14px;
+  background: var(--accent); border: none;
+  color: var(--bg); font-family: var(--sans);
+  font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  cursor: pointer; font-weight: 600; transition: background 0.25s;
+  margin-top: 8px;
+}
+.login-btn:hover { background: var(--accent2); }
+.login-hint { text-align: center; margin-top: 16px; font-size: 12px; color: var(--muted); }
+
+/* MAIN LAYOUT */
+#appLayout {
+  display: none;
+  min-height: 100vh;
+}
+#appLayout.visible { display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  height: 100vh; position: fixed; top: 0; left: 0;
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-brand {
+  font-family: var(--serif); font-size: 20px; font-weight: 300;
+  color: var(--white); line-height: 1;
+}
+.sidebar-role {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); margin-top: 4px;
+}
+.sidebar-nav { flex: 1; padding: 16px 0; }
+.nav-section-label {
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--muted); padding: 12px 20px 6px;
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 20px;
+  font-size: 13px; color: var(--muted2);
+  cursor: pointer; transition: all 0.2s;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+  user-select: none;
+}
+.sidebar-link:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+.sidebar-link.active {
+  color: var(--accent); border-left-color: var(--accent);
+  background: rgba(201,169,110,0.06);
+}
+.sidebar-icon { font-size: 15px; width: 20px; text-align: center; }
+.sidebar-badge {
+  margin-left: auto; background: var(--accent);
+  color: var(--bg); font-size: 9px; font-weight: 600;
+  padding: 2px 7px; border-radius: 10px; letter-spacing: 0.04em;
+}
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 12px;
+}
+.sidebar-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; border: 1px solid var(--border2);
+}
+.sidebar-user-name { font-size: 13px; font-weight: 500; }
+.sidebar-user-role { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.sidebar-logout {
+  margin-left: auto; color: var(--muted); font-size: 18px;
+  cursor: pointer; transition: color 0.2s;
+}
+.sidebar-logout:hover { color: var(--danger); }
+
+/* MAIN CONTENT */
+.main-wrap {
+  margin-left: var(--sidebar);
+  flex: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+.topbar {
+  height: var(--topbar);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 32px;
+  position: sticky; top: 0; z-index: 50;
+  gap: 16px;
+}
+.topbar-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 300;
+  color: var(--white); flex: 1;
+}
+.topbar-title span { color: var(--accent); font-style: italic; }
+.topbar-search {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 8px 16px; border-radius: 4px; min-width: 220px;
+}
+.topbar-search input {
+  background: none; border: none; outline: none;
+  color: var(--white); font-family: var(--sans); font-size: 13px;
+  flex: 1;
+}
+.topbar-search input::placeholder { color: var(--muted); }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.topbar-btn {
+  padding: 8px 20px; font-family: var(--sans);
+  font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s; font-weight: 500;
+}
+.topbar-btn.primary {
+  background: var(--accent); color: var(--bg); border: none;
+}
+.topbar-btn.primary:hover { background: var(--accent2); }
+.topbar-btn.ghost {
+  background: none; border: 1px solid var(--border2); color: var(--muted2);
+}
+.topbar-btn.ghost:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-notif {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; position: relative; font-size: 16px;
+  transition: border-color 0.2s;
+}
+.topbar-notif:hover { border-color: var(--accent); }
+.notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 7px; height: 7px; background: var(--accent);
+  border-radius: 50%; border: 2px solid var(--surface);
+}
+.page-content { padding: 32px; flex: 1; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* STATS GRID */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+  transition: border-color 0.25s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.stat-card-icon {
+  width: 40px; height: 40px;
+  background: rgba(201,169,110,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.stat-card-change {
+  font-size: 11px; color: var(--success);
+  display: flex; align-items: center; gap: 4px;
+}
+.stat-card-change.down { color: var(--danger); }
+.stat-num {
+  font-family: var(--serif); font-size: 48px; font-weight: 300;
+  color: var(--white); line-height: 1; margin: 16px 0 4px;
+}
+.stat-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* CARDS */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 24px; margin-bottom: 24px;
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 13px; font-weight: 500; letter-spacing: 0.04em;
+}
+.card-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* TWO COLUMN */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+/* RECENT UPLOADS GRID */
+.media-thumb-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+}
+.media-thumb {
+  aspect-ratio: 1; overflow: hidden; position: relative;
+  cursor: pointer; background: var(--surface2);
+}
+.media-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.4s;
+}
+.media-thumb:hover img { transform: scale(1.08); }
+.media-thumb-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.3s; font-size: 18px;
+}
+.media-thumb:hover .media-thumb-overlay { opacity: 1; }
+
+/* ACTIVITY FEED */
+.activity-list { display: flex; flex-direction: column; gap: 0; }
+.activity-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: rgba(201,169,110,0.1);
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.activity-text { font-size: 13px; color: var(--muted2); line-height: 1.5; }
+.activity-text strong { color: var(--white); font-weight: 500; }
+.activity-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); font-weight: 400;
+  padding: 10px 16px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 14px 16px; font-size: 13px; color: var(--muted2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.02); }
+.data-table tr:last-child td { border-bottom: none; }
+.td-thumb {
+  width: 52px; height: 40px; object-fit: cover;
+  display: block;
+}
+.td-title { font-size: 13px; color: var(--white); font-weight: 500; max-width: 220px; }
+.td-cat { display: inline-block; padding: 3px 10px; background: rgba(255,255,255,0.06); font-size: 10px; letter-spacing: 0.08em; }
+.badge { display: inline-block; padding: 3px 10px; font-size: 10px; letter-spacing: 0.06em; }
+.badge.published { background: rgba(92,186,138,0.12); color: var(--success); border: 1px solid rgba(92,186,138,0.2); }
+.badge.draft { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--border); }
+.badge.video { background: rgba(92,155,224,0.12); color: var(--info); border: 1px solid rgba(92,155,224,0.2); }
+.badge.photo { background: rgba(201,169,110,0.12); color: var(--accent); border: 1px solid rgba(201,169,110,0.2); }
+.badge.featured { background: rgba(201,169,110,0.18); color: var(--accent2); border: 1px solid rgba(201,169,110,0.3); }
+.badge.unread { background: rgba(224,92,92,0.12); color: var(--danger); border: 1px solid rgba(224,92,92,0.2); }
+.td-actions { display: flex; gap: 8px; align-items: center; }
+.action-btn {
+  padding: 6px 12px; font-size: 11px; font-family: var(--sans);
+  cursor: pointer; transition: all 0.2s; border: 1px solid var(--border);
+  background: none; color: var(--muted2); letter-spacing: 0.06em;
+}
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.action-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+.action-btn.success:hover { border-color: var(--success); color: var(--success); }
+.checkbox { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+
+/* FORM CONTROLS */
+.form-section { margin-bottom: 32px; }
+.form-section-title {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 20px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.form-input, .form-select, .form-textarea {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 11px 14px; color: var(--white);
+  font-family: var(--sans); font-size: 13px; outline: none;
+  transition: border-color 0.25s; appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 100px; }
+.form-hint { font-size: 11px; color: var(--muted); }
+
+/* TOGGLE */
+.toggle-group { display: flex; align-items: center; gap: 12px; }
+.toggle {
+  width: 44px; height: 24px; background: var(--surface3);
+  border-radius: 12px; position: relative; cursor: pointer;
+  transition: background 0.25s; flex-shrink: 0; border: none;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--white); transition: transform 0.25s;
+}
+.toggle.on::after { transform: translateX(20px); }
+.toggle-label { font-size: 13px; color: var(--muted2); }
+
+/* IMAGE UPLOAD */
+.img-upload-zone {
+  border: 1.5px dashed var(--border2);
+  padding: 40px 24px;
+  text-align: center; cursor: pointer;
+  transition: border-color 0.25s; position: relative;
+  background: var(--surface2);
+}
+.img-upload-zone:hover { border-color: var(--accent); }
+.img-upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.img-upload-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.5; }
+.img-upload-text { font-size: 13px; color: var(--muted); }
+.img-preview {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-top: 16px;
+}
+.img-preview-item {
+  aspect-ratio: 1; overflow: hidden; position: relative;
+  background: var(--surface3);
+}
+.img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; background: var(--danger);
+  border: none; color: white; cursor: pointer;
+  font-size: 11px; display: flex; align-items: center; justify-content: center;
+}
+
+/* SECTION EDITOR DRAG */
+.section-editor { display: flex; flex-direction: column; gap: 10px; }
+.section-row {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface2); padding: 14px 18px;
+  border: 1px solid var(--border); cursor: grab;
+  transition: border-color 0.2s, background 0.2s;
+}
+.section-row:hover { border-color: var(--border2); background: var(--surface3); }
+.section-row.dragging { opacity: 0.5; }
+.drag-handle { font-size: 16px; color: var(--muted); cursor: grab; }
+.section-name { flex: 1; font-size: 13px; font-weight: 500; }
+.section-visible { margin-left: auto; }
+
+/* CATEGORY CARD GRID */
+.cat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.cat-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  overflow: hidden; position: relative;
+  transition: border-color 0.25s;
+}
+.cat-card:hover { border-color: var(--accent); }
+.cat-img { width: 100%; aspect-ratio: 3/2; object-fit: cover; display: block; }
+.cat-body { padding: 14px; }
+.cat-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.cat-type { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.cat-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* INQUIRY CARD */
+.inquiry-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 20px 24px; display: flex; gap: 20px;
+  align-items: flex-start; transition: border-color 0.2s;
+  margin-bottom: 10px;
+}
+.inquiry-card:hover { border-color: var(--border2); }
+.inquiry-card.unread { border-left: 3px solid var(--accent); }
+.inquiry-avatar {
+  width: 44px; height: 44px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0; font-family: var(--serif);
+  font-style: italic; color: var(--accent);
+}
+.inquiry-name { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.inquiry-service { font-size: 11px; color: var(--accent); letter-spacing: 0.08em; }
+.inquiry-msg { font-size: 13px; color: var(--muted2); margin-top: 8px; line-height: 1.6; }
+.inquiry-meta { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.inquiry-actions { margin-left: auto; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+
+/* HERO EDITOR */
+.hero-preview {
+  position: relative; aspect-ratio: 16/7; overflow: hidden; margin-bottom: 20px;
+}
+.hero-preview img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.hero-preview-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px;
+}
+.hero-preview-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 300;
+  color: white; text-align: center; margin-bottom: 12px;
+}
+.hero-preview-sub {
+  font-size: 14px; color: rgba(255,255,255,0.6); text-align: center;
+  max-width: 400px;
+}
+.hero-preview-btns { display: flex; gap: 12px; margin-top: 20px; }
+.hero-preview-btn {
+  padding: 10px 24px; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hero-preview-btn.solid { background: var(--accent); color: white; border: none; }
+.hero-preview-btn.outline { background: none; border: 1px solid rgba(255,255,255,0.5); color: white; }
+
+/* TESTIMONIAL CARDS */
+.test-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 20px; position: relative;
+  transition: border-color 0.2s;
+}
+.test-card:hover { border-color: var(--accent); }
+.test-card .action-btn.remove {
+  position: absolute; top: 12px; right: 12px;
+  padding: 4px 8px;
+}
+.test-quote { font-family: var(--serif); font-size: 15px; font-style: italic; color: var(--muted2); line-height: 1.7; margin-bottom: 14px; }
+.test-author { font-size: 12px; font-weight: 500; }
+.test-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* SETTINGS */
+.color-picker-row { display: flex; align-items: center; gap: 14px; }
+.color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border2); }
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 28px; }
+.page-header-title {
+  font-family: var(--serif); font-size: 30px; font-weight: 300;
+  color: var(--white);
+}
+.page-header-title em { color: var(--accent); font-style: italic; }
+.page-header-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.page-header-bar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.toolbar-select {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 8px 14px; color: var(--muted2); font-family: var(--sans);
+  font-size: 12px; outline: none; appearance: none; cursor: pointer;
+}
+.toolbar-select:focus { border-color: var(--accent); }
+.search-input {
+  background: var(--surface2); border: 1px solid var(--border);
+  padding: 8px 14px; color: var(--white); font-family: var(--sans);
+  font-size: 12px; outline: none; min-width: 180px;
+}
+.search-input:focus { border-color: var(--accent); }
+
+/* MODAL */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  z-index: 3000; display: none; align-items: center; justify-content: center;
+  padding: 32px;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2);
+  width: 100%; max-width: 720px; max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 0.3s cubic-bezier(0.23,1,0.32,1);
+}
+@keyframes modalIn { from{transform:scale(0.95) translateY(20px);opacity:0;} to{transform:scale(1) translateY(0);opacity:1;} }
+.modal-header {
+  padding: 24px 28px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+}
+.modal-title { font-family: var(--serif); font-size: 22px; font-weight: 300; }
+.modal-close {
+  width: 36px; height: 36px; background: none;
+  border: 1px solid var(--border); color: var(--muted2);
+  cursor: pointer; font-size: 16px; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { border-color: var(--danger); color: var(--danger); }
+.modal-body { padding: 28px; }
+.modal-footer {
+  padding: 20px 28px; border-top: 1px solid var(--border);
+  display: flex; gap: 12px; justify-content: flex-end;
+}
+.btn { padding: 10px 24px; font-family: var(--sans); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; font-weight: 500; transition: all 0.2s; border: none; }
+.btn.primary { background: var(--accent); color: var(--bg); }
+.btn.primary:hover { background: var(--accent2); }
+.btn.secondary { background: var(--surface3); color: var(--muted2); border: 1px solid var(--border); }
+.btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn.danger-btn { background: var(--danger); color: white; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 28px; right: 28px; z-index: 8000;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--accent);
+  padding: 14px 20px; font-size: 13px;
+  transform: translateY(12px); opacity: 0;
+  transition: all 0.35s; pointer-events: none;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left-color: var(--success); }
+.toast.danger { border-left-color: var(--danger); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .media-thumb-grid { grid-template-columns: repeat(4, 1fr); }
+  .cat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sidebar-brand, .sidebar-role, .sidebar-link span, .sidebar-badge, .sidebar-user-name, .sidebar-user-role, .nav-section-label { display: none; }
+  .sidebar-link { justify-content: center; padding: 14px; }
+  .sidebar-icon { width: auto; }
+  .sidebar-footer { padding: 12px; }
+  .sidebar-avatar { margin: 0 auto; }
+  .sidebar-user { justify-content: center; }
+  .main-wrap { margin-left: 60px; }
+  .two-col { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .cat-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .three-col { grid-template-columns: 1fr; }
+  .page-content { padding: 16px; }
+  .topbar { padding: 0 16px; }
+  .topbar-search { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Yuston Mwakesi</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <div class="login-field">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="admin@infernopictures.co.ke" value="admin@infernopictures.co.ke">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" value="admin123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In to Dashboard</button>
+    <p class="login-hint">Demo: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dcbdb8b1b5b29ca5a9afa8b3b1abbdb7b9afb5f2bfb3b1">[email&#160;protected]</a> / admin123</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appLayout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-brand">Inferno Pictures</div>
+      <div class="sidebar-role">Admin Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="sidebar-link active" onclick="showPanel('overview')">
+        <span class="sidebar-icon">◈</span><span>Overview</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('portfolio')">
+        <span class="sidebar-icon">◧</span><span>Portfolio</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('categories')">
+        <span class="sidebar-icon">⊞</span><span>Categories</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('media')">
+        <span class="sidebar-icon">⬡</span><span>Media Library</span>
+      </a>
+      <div class="nav-section-label">Site</div>
+      <a class="sidebar-link" onclick="showPanel('homepage')">
+        <span class="sidebar-icon">⊙</span><span>Homepage</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('hero')">
+        <span class="sidebar-icon">◉</span><span>Hero Section</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('about')">
+        <span class="sidebar-icon">◎</span><span>About</span>
+      </a>
+      <a class="sidebar-link" onclick="showPanel('testimonials')">
+        <span class="sidebar-icon">❝</span><span>Testimonials</span>
+      </a>
+      <div class="nav-section-label">CRM</div>
+      <a class="sidebar-link" onclick="showPanel('inquiries')">
+        <span class="sidebar-icon">✉</span><span>Inquiries</span><span class="sidebar-badge">3</span>
+      </a>
+      <div class="nav-section-label">Config</div>
+      <a class="sidebar-link" onclick="showPanel('settings')">
+        <span class="sidebar-icon">⚙</span><span>Site Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80" class="sidebar-avatar" alt="Admin">
+        <div>
+          <div class="sidebar-user-name">Yustom</div>
+          <div class="sidebar-user-role">Super Admin</div>
+        </div>
+        <span class="sidebar-logout" onclick="doLogout()" title="Sign out">⏻</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-wrap">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard <span>Overview</span></div>
+      <div class="topbar-search">
+        <span style="color:var(--muted);font-size:14px;">⌕</span>
+        <input type="text" placeholder="Search content...">
+      </div>
+      <div class="topbar-actions">
+        <button class="topbar-btn ghost" onclick="window.open('index.html','_blank')">↗ View Site</button>
+        <button class="topbar-btn primary" id="topbarPrimaryBtn" onclick="openAddModal()">+ Add Item</button>
+        <div class="topbar-notif">🔔<div class="notif-dot"></div></div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- OVERVIEW PANEL -->
+      <div class="panel active" id="panel-overview">
+        <div class="page-header">
+          <div class="page-header-title">Good morning, <em>Yuston</em> 👋</div>
+          <div class="page-header-sub">Here's what's happening with your studio today.</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-card-icon">◧</div>
+              <div class="stat-card-change">↑ 12%</div>
+            </div>
+            <div class="stat-num">15</div>
+            <div class="stat-label">Portfolio Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-card-icon">⊞</div>
+              <div class="stat-card-change">—</div>
+            </div>
+            <div class="stat-num">8</div>
+            <div class="stat-label">Categories</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-card-icon">★</div>
+              <div class="stat-card-change">↑ 2</div>
+            </div>
+            <div class="stat-num">6</div>
+            <div class="stat-label">Featured Items</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-top">
+              <div class="stat-card-icon">✉</div>
+              <div class="stat-card-change down">↑ 3 new</div>
+            </div>
+            <div class="stat-num">3</div>
+            <div class="stat-label">New Inquiries</div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Recent Uploads</div>
+                <div class="card-subtitle">Latest media added to library</div>
+              </div>
+              <button class="action-btn" onclick="showPanel('media')">View All →</button>
+            </div>
+            <div class="media-thumb-grid" id="overviewThumbs"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Recent Activity</div>
+                <div class="card-subtitle">Latest system events</div>
+              </div>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item"><div class="activity-icon">◧</div><div><div class="activity-text"><strong>New portfolio item</strong> published — "Amani & James"</div><div class="activity-time">2 hours ago</div></div></div>
+              <div class="activity-item"><div class="activity-icon">✉</div><div><div class="activity-text"><strong>Inquiry received</strong> from Jane Njoki for Wedding Photography</div><div class="activity-time">4 hours ago</div></div></div>
+              <div class="activity-item"><div class="activity-icon">⬡</div><div><div class="activity-text"><strong>8 images</strong> uploaded to media library</div><div class="activity-time">Yesterday</div></div></div>
+              <div class="activity-item"><div class="activity-icon">◉</div><div><div class="activity-text"><strong>Hero section</strong> updated with new background</div><div class="activity-time">2 days ago</div></div></div>
+              <div class="activity-item"><div class="activity-icon">❝</div><div><div class="activity-text"><strong>Testimonial added</strong> from Mark Kariuki</div><div class="activity-time">3 days ago</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Latest Inquiries</div></div>
+            <button class="action-btn" onclick="showPanel('inquiries')">View All →</button>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Jane Njoki</strong><br><span style="font-size:11px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="462c27282306232b272f2a6825292b">[email&#160;protected]</a></span></td><td><span class="td-cat">Wedding Photography</span></td><td>Mar 14, 2025</td><td><span class="badge unread">Unread</span></td><td class="td-actions"><button class="action-btn success">Reply</button><button class="action-btn danger">Delete</button></td></tr>
+              <tr><td><strong>Tom Okeyo</strong><br><span style="font-size:11px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fc889391bc9e9586d29f9391">[email&#160;protected]</a></span></td><td><span class="td-cat">Real Estate</span></td><td>Mar 13, 2025</td><td><span class="badge unread">Unread</span></td><td class="td-actions"><button class="action-btn success">Reply</button><button class="action-btn danger">Delete</button></td></tr>
+              <tr><td><strong>Aisha Muthoni</strong><br><span style="font-size:11px;color:var(--muted);"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="60010913080120030f4e0b05">[email&#160;protected]</a></span></td><td><span class="td-cat">Creative Shoot</span></td><td>Mar 12, 2025</td><td><span class="badge published" style="border-color:rgba(92,186,138,0.2)">Read</span></td><td class="td-actions"><button class="action-btn success">Reply</button><button class="action-btn danger">Delete</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PORTFOLIO PANEL -->
+      <div class="panel" id="panel-portfolio">
+        <div class="page-header-bar">
+          <div class="page-header">
+            <div class="page-header-title">Portfolio <em>Items</em></div>
+            <div class="page-header-sub">Manage all photography and videography work</div>
+          </div>
+          <button class="btn primary" onclick="openAddModal()">+ Add New Item</button>
+        </div>
+        <div class="card" style="padding:0;">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <input class="search-input" type="text" placeholder="Search portfolio..." oninput="filterTable(this.value)">
+            <select class="toolbar-select" onchange="filterTableCat(this.value)">
+              <option value="">All Categories</option>
+              <option>Wedding Videography</option>
+              <option>Documentaries</option>
+              <option>Real Estate</option>
+              <option>Studio Photography</option>
+              <option>Outdoor Shoots</option>
+              <option>Creative Shoots</option>
+              <option>Wedding Photography</option>
+              <option>Project Documentations</option>
+            </select>
+            <select class="toolbar-select">
+              <option>All Types</option>
+              <option>Photo</option>
+              <option>Video</option>
+            </select>
+            <select class="toolbar-select">
+              <option>All Status</option>
+              <option>Published</option>
+              <option>Draft</option>
+            </select>
+            <button class="action-btn danger" style="margin-left:auto;">Bulk Delete</button>
+          </div>
+          <table class="data-table" id="portfolioTable">
+            <thead>
+              <tr>
+                <th><input type="checkbox" class="checkbox"></th>
+                <th>Thumbnail</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Featured</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CATEGORIES PANEL -->
+      <div class="panel" id="panel-categories">
+        <div class="page-header-bar">
+          <div class="page-header">
+            <div class="page-header-title">Category <em>Management</em></div>
+            <div class="page-header-sub">Organise service categories displayed on the public site</div>
+          </div>
+          <button class="btn primary" onclick="openCatModal()">+ Add Category</button>
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+
+      <!-- MEDIA PANEL -->
+      <div class="panel" id="panel-media">
+        <div class="page-header-bar">
+          <div class="page-header">
+            <div class="page-header-title">Media <em>Library</em></div>
+            <div class="page-header-sub">All uploaded images and video thumbnails</div>
+          </div>
+          <button class="btn primary" onclick="showToast('Upload dialog would open here ✓','success')">↑ Upload Files</button>
+        </div>
+        <div class="card">
+          <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+            <input class="search-input" placeholder="Search files...">
+            <select class="toolbar-select"><option>All Files</option><option>Images</option><option>Videos</option></select>
+            <select class="toolbar-select"><option>Newest First</option><option>Oldest First</option><option>Name A–Z</option></select>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;" id="mediaLibGrid"></div>
+        </div>
+      </div>
+
+      <!-- HOMEPAGE PANEL -->
+      <div class="panel" id="panel-homepage">
+        <div class="page-header">
+          <div class="page-header-title">Homepage <em>Layout</em></div>
+          <div class="page-header-sub">Drag sections to reorder. Toggle visibility. Click to edit content.</div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Section Order & Visibility</div></div>
+            <div class="section-editor" id="sectionEditor"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quick Actions</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <button class="btn secondary" style="text-align:left;" onclick="showPanel('hero')">◉ Edit Hero Section</button>
+              <button class="btn secondary" style="text-align:left;" onclick="showPanel('about')">◎ Edit About Section</button>
+              <button class="btn secondary" style="text-align:left;" onclick="showPanel('testimonials')">❝ Edit Testimonials</button>
+              <button class="btn secondary" style="text-align:left;" onclick="showPanel('categories')">⊞ Manage Categories</button>
+              <button class="btn secondary" style="text-align:left;" onclick="showPanel('settings')">⚙ Site Settings</button>
+            </div>
+            <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+              <button class="btn primary" onclick="showToast('Homepage changes saved and published ✓','success')" style="width:100%;">Publish Changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HERO PANEL -->
+      <div class="panel" id="panel-hero">
+        <div class="page-header">
+          <div class="page-header-title">Hero <em>Section</em></div>
+          <div class="page-header-sub">Edit the hero content visible at the top of the public website</div>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Live Preview</div></div>
+              <div class="hero-preview">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=900&q=60" alt="Hero preview" id="heroPrevImg">
+                <div class="hero-preview-overlay">
+                  <div class="hero-preview-title" id="heroPrevTitle">Capturing <em>stories</em> through photography and film</div>
+                  <div class="hero-preview-sub" id="heroPrevSub">Premium photography and videography for weddings, brands, and creative visions.</div>
+                  <div class="hero-preview-btns">
+                    <button class="hero-preview-btn solid" id="heroPrevBtn1">View Portfolio</button>
+                    <button class="hero-preview-btn outline" id="heroPrevBtn2">Book a Session</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Edit Content</div></div>
+              <div class="form-section">
+                <div class="form-section-title">Text</div>
+                <div style="display:flex;flex-direction:column;gap:16px;">
+                  <div class="form-group">
+                    <label class="form-label">Headline</label>
+                    <input class="form-input" value="Capturing stories through photography and film" oninput="document.getElementById('heroPrevTitle').textContent=this.value">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Subheading</label>
+                    <textarea class="form-textarea" style="min-height:80px;" oninput="document.getElementById('heroPrevSub').textContent=this.value">Premium photography and videography for weddings, brands, and creative visions. Every frame intentional, every story unforgettable.</textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Primary CTA Label</label>
+                    <input class="form-input" value="View Portfolio" oninput="document.getElementById('heroPrevBtn1').textContent=this.value">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Secondary CTA Label</label>
+                    <input class="form-input" value="Book a Session" oninput="document.getElementById('heroPrevBtn2').textContent=this.value">
+                  </div>
+                </div>
+              </div>
+              <div class="form-section">
+                <div class="form-section-title">Background Image</div>
+                <div class="img-upload-zone" onclick="showToast('Image upload dialog would open ✓','success')">
+                  <div class="img-upload-icon">⬡</div>
+                  <div class="img-upload-text">Click to upload hero background image<br><small style="color:var(--muted);">Recommended: 1920×1080 · JPG/PNG/WEBP</small></div>
+                </div>
+              </div>
+              <button class="btn primary" onclick="showToast('Hero section saved and published ✓','success')" style="width:100%;margin-top:8px;">Save & Publish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABOUT PANEL -->
+      <div class="panel" id="panel-about">
+        <div class="page-header">
+          <div class="page-header-title">About <em>Section</em></div>
+          <div class="page-header-sub">Edit the brand biography and personal story</div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header"><div class="card-title">About Content</div></div>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Section Label</label>
+                <input class="form-input" value="The Person Behind the Lens">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Headline</label>
+                <input class="form-input" value="Yuston Mwakesi">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pull Quote</label>
+                <textarea class="form-textarea">I believe every story deserves to be told beautifully — with intention, emotion, and an eye that never stops searching.</textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Biography Paragraph 1</label>
+                <textarea class="form-textarea">Based in Nairobi, I've spent the last seven years building a practice rooted in the belief that photography and film are not just services — they are gifts.</textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Biography Paragraph 2</label>
+                <textarea class="form-textarea">My approach is calm, attentive, and collaborative. I listen deeply, move quietly, and find the extraordinary in the every day.</textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Signature Name</label>
+                <input class="form-input" value="Yuston Mwakesi">
+              </div>
+            </div>
+            <button class="btn primary" onclick="showToast('About section updated ✓','success')" style="width:100%;margin-top:20px;">Save Changes</button>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">About Images</div></div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Primary Photo</label>
+              <div class="img-upload-zone" onclick="showToast('Upload dialog ✓','success')" style="padding:20px;">
+                <img src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=400&q=70" style="width:100%;height:200px;object-fit:cover;display:block;" alt="">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secondary Photo (Overlay)</label>
+              <div class="img-upload-zone" onclick="showToast('Upload dialog ✓','success')" style="padding:20px;">
+                <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=70" style="width:100%;height:160px;object-fit:cover;display:block;" alt="">
+              </div>
+            </div>
+            <div class="form-section" style="margin-top:20px;">
+              <div class="form-section-title">Stats</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div class="form-group"><label class="form-label">Number</label><input class="form-input" value="340+"></div>
+                <div class="form-group" style="grid-column:span 2;"><label class="form-label">Label</label><input class="form-input" value="Projects Completed"></div>
+                <div class="form-group"><label class="form-label">Number</label><input class="form-input" value="7"></div>
+                <div class="form-group" style="grid-column:span 2;"><label class="form-label">Label</label><input class="form-input" value="Years Experience"></div>
+                <div class="form-group"><label class="form-label">Number</label><input class="form-input" value="98%"></div>
+                <div class="form-group" style="grid-column:span 2;"><label class="form-label">Label</label><input class="form-input" value="Client Satisfaction"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TESTIMONIALS PANEL -->
+      <div class="panel" id="panel-testimonials">
+        <div class="page-header-bar">
+          <div class="page-header">
+            <div class="page-header-title">Testimonial <em>Manager</em></div>
+            <div class="page-header-sub">Manage client reviews shown on the public website</div>
+          </div>
+          <button class="btn primary" onclick="openTestimonialModal()">+ Add Testimonial</button>
+        </div>
+        <div class="three-col" id="testimonialCards"></div>
+      </div>
+
+      <!-- INQUIRIES PANEL -->
+      <div class="panel" id="panel-inquiries">
+        <div class="page-header">
+          <div class="page-header-title">Client <em>Inquiries</em></div>
+          <div class="page-header-sub">Review and respond to booking and project requests</div>
+        </div>
+        <div id="inquiryList"></div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="panel" id="panel-settings">
+        <div class="page-header">
+          <div class="page-header-title">Site <em>Settings</em></div>
+          <div class="page-header-sub">Manage branding, contact details, SEO, and global configuration</div>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Brand</div></div>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group">
+                  <label class="form-label">Studio Name</label>
+                  <input class="form-input" value="Yuston Mwakesi">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Tagline</label>
+                  <input class="form-input" value="Photography & Videography">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Logo (Upload)</label>
+                  <div class="img-upload-zone" onclick="showToast('Upload dialog ✓','success')" style="padding:16px;text-align:left;">
+                    <div style="font-size:11px;color:var(--muted);">Current: No logo file (using text)</div>
+                    <div style="font-size:11px;color:var(--accent);margin-top:6px;cursor:pointer;">+ Upload SVG/PNG Logo</div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Accent Color</label>
+                  <div class="color-picker-row">
+                    <div class="color-dot" style="background:#c9a96e;"></div>
+                    <div class="color-dot" style="background:#8b6914;"></div>
+                    <div class="color-dot" style="background:#2c2c2c;"></div>
+                    <div class="color-dot" style="background:#c96e6e;"></div>
+                    <input class="form-input" value="#c9a96e" style="max-width:140px;">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">SEO Metadata</div></div>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group"><label class="form-label">Page Title</label><input class="form-input" value="Yuston Mwakesi — Photography & Videography | Nairobi"></div>
+                <div class="form-group"><label class="form-label">Meta Description</label><textarea class="form-textarea" style="min-height:80px;">Premium photography and videography studio based in Nairobi, Kenya. Specialising in weddings, documentaries, real estate, and creative editorial work.</textarea></div>
+                <div class="form-group"><label class="form-label">Keywords</label><input class="form-input" value="photography nairobi, videography kenya, wedding photographer, cinematic film"></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Contact & Social</div></div>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" value="hello@infernopictures.co.ke"></div>
+                <div class="form-group"><label class="form-label">WhatsApp Number</label><input class="form-input" value="+254 700 000 000"></div>
+                <div class="form-group"><label class="form-label">Studio Address</label><input class="form-input" value="Westlands, Nairobi, Kenya"></div>
+                <div class="form-group"><label class="form-label">Instagram Handle</label><input class="form-input" value="@yustomwakesi"></div>
+                <div class="form-group"><label class="form-label">Instagram URL</label><input class="form-input" value="https://www.instagram.com/yustomwakesi/"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Footer</div></div>
+              <div style="display:flex;flex-direction:column;gap:16px;">
+                <div class="form-group"><label class="form-label">Footer Copyright Text</label><input class="form-input" value="© 2025 Yuston Mwakesi. All rights reserved."></div>
+                <div class="form-group"><label class="form-label">Footer Tagline</label><input class="form-input" value="Photography & Videography — Nairobi, Kenya"></div>
+              </div>
+            </div>
+            <button class="btn primary" onclick="showToast('All settings saved ✓','success')" style="width:100%;">Save All Settings</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end page-content -->
+  </div><!-- end main-wrap -->
+</div><!-- end appLayout -->
+
+<!-- ADD PORTFOLIO MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Portfolio <em style="font-style:italic;color:var(--accent);">Item</em></div>
+      <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="form-section-title">Item Details</div>
+        <div class="form-grid">
+          <div class="form-group full"><label class="form-label">Title</label><input class="form-input" placeholder="e.g. Amani & James – Wedding Film"></div>
+          <div class="form-group"><label class="form-label">Category</label><select class="form-select"><option>Wedding Videography</option><option>Documentaries</option><option>Real Estate</option><option>Studio Photography</option><option>Outdoor Shoots</option><option>Creative Shoots</option><option>Wedding Photography</option><option>Project Documentations</option></select></div>
+          <div class="form-group"><label class="form-label">Media Type</label><select class="form-select"><option>Photo</option><option>Video</option></select></div>
+          <div class="form-group full"><label class="form-label">Description</label><textarea class="form-textarea" placeholder="Describe this project..."></textarea></div>
+          <div class="form-group full"><label class="form-label">Instagram Post URL</label><input class="form-input" placeholder="https://www.instagram.com/yustomwakesi/p/..."></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Thumbnail Image</div>
+        <div class="img-upload-zone" onclick="showToast('Upload dialog ✓','success')">
+          <div class="img-upload-icon">⬡</div>
+          <div class="img-upload-text">Click to upload thumbnail<br><small style="color:var(--muted);">JPG, PNG, WEBP · Max 5MB</small></div>
+        </div>
+      </div>
+      <div class="form-section" style="margin-bottom:0;">
+        <div class="form-section-title">Options</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="toggle-group"><button class="toggle on" onclick="this.classList.toggle('on')"></button><span class="toggle-label">Published</span></div>
+          <div class="toggle-group"><button class="toggle" onclick="this.classList.toggle('on')"></button><span class="toggle-label">Featured on Homepage</span></div>
+          <div class="form-group"><label class="form-label">Date</label><input class="form-input" type="date"></div>
+          <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-input" placeholder="wedding, nairobi, outdoor"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn secondary" onclick="showToast('Saved as draft ✓','success');closeModal('addModal')">Save Draft</button>
+      <button class="btn primary" onclick="showToast('Portfolio item published ✓','success');closeModal('addModal')">Publish Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-bg" id="catModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Add <em style="color:var(--accent);font-style:italic;">Category</em></div>
+      <button class="modal-close" onclick="closeModal('catModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="form-group"><label class="form-label">Category Name</label><input class="form-input" placeholder="e.g. Wedding Videography"></div>
+        <div class="form-group"><label class="form-label">Type</label><select class="form-select"><option>Videography</option><option>Photography</option></select></div>
+        <div class="form-group"><label class="form-label">Short Descriptor</label><input class="form-input" placeholder="One-line description for the card"></div>
+        <div class="form-group"><label class="form-label">Cover Image</label>
+          <div class="img-upload-zone" onclick="showToast('Upload dialog ✓','success')">
+            <div class="img-upload-icon">⬡</div>
+            <div class="img-upload-text">Upload category cover image</div>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">Display Order</label><input class="form-input" type="number" value="1"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('catModal')">Cancel</button>
+      <button class="btn primary" onclick="showToast('Category saved ✓','success');closeModal('catModal')">Save Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TESTIMONIAL MODAL -->
+<div class="modal-bg" id="testModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">Add <em style="color:var(--accent);font-style:italic;">Testimonial</em></div>
+      <button class="modal-close" onclick="closeModal('testModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="form-group"><label class="form-label">Client Name</label><input class="form-input" placeholder="e.g. Jane Kamau"></div>
+        <div class="form-group"><label class="form-label">Role / Context</label><input class="form-input" placeholder="e.g. Bride — Wedding Photography"></div>
+        <div class="form-group"><label class="form-label">Testimonial Text</label><textarea class="form-textarea" placeholder="What did they say..."></textarea></div>
+        <div class="form-group"><label class="form-label">Client Photo (optional)</label>
+          <div class="img-upload-zone" onclick="showToast('Upload ✓','success')" style="padding:16px;">
+            <div class="img-upload-text">Upload avatar photo</div>
+          </div>
+        </div>
+        <div class="toggle-group"><button class="toggle on" onclick="this.classList.toggle('on')"></button><span class="toggle-label">Show on website</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn secondary" onclick="closeModal('testModal')">Cancel</button>
+      <button class="btn primary" onclick="showToast('Testimonial added ✓','success');closeModal('testModal')">Save Testimonial</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ====== MOCK DATA ======
+const portfolioItems = [
+  { id:1, title:"Amani & James – Wedding Film", category:"Wedding Videography", type:"video", img:"https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=100&q=70", featured:true, status:"published" },
+  { id:2, title:"Nairobi Silhouettes", category:"Documentaries", type:"video", img:"https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=100&q=70", featured:true, status:"published" },
+  { id:3, title:"Westlands Penthouse", category:"Real Estate", type:"video", img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=100&q=70", featured:false, status:"published" },
+  { id:4, title:"Bold in Black", category:"Studio Photography", type:"photo", img:"https://images.unsplash.com/photo-1604514628550-37477afdf4e3?w=100&q=70", featured:true, status:"published" },
+  { id:5, title:"Sunrise at Karura Forest", category:"Outdoor Shoots", type:"photo", img:"https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&q=70", featured:false, status:"draft" },
+  { id:6, title:"Neon Genesis", category:"Creative Shoots", type:"photo", img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&q=70", featured:true, status:"published" },
+  { id:7, title:"Njeri & Kevin – Ceremony", category:"Wedding Photography", type:"photo", img:"https://images.unsplash.com/photo-1519741497674-611481863552?w=100&q=70", featured:true, status:"published" },
+  { id:8, title:"Habitat Project Docs", category:"Project Documentations", type:"photo", img:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=100&q=70", featured:false, status:"published" },
+  { id:9, title:"Grace & Moses – Film", category:"Wedding Videography", type:"video", img:"https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=100&q=70", featured:false, status:"published" },
+  { id:10, title:"Zora's World", category:"Documentaries", type:"video", img:"https://images.unsplash.com/photo-1488229297570-58520851e68a?w=100&q=70", featured:false, status:"draft" },
+];
+
+const categoriesData = [
+  { name:"Wedding Videography", type:"Videography", desc:"Cinematic wedding films", img:"https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&q=70" },
+  { name:"Documentaries", type:"Videography", desc:"Stories with depth and purpose", img:"https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&q=70" },
+  { name:"Real Estate", type:"Videography", desc:"Properties in their best light", img:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&q=70" },
+  { name:"Studio Photography", type:"Photography", desc:"Controlled perfection in the studio", img:"https://images.unsplash.com/photo-1604514628550-37477afdf4e3?w=400&q=70" },
+  { name:"Outdoor Shoots", type:"Photography", desc:"Natural light, authentic moments", img:"https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=400&q=70" },
+  { name:"Creative Shoots", type:"Photography", desc:"Bold concepts, fearless execution", img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70" },
+  { name:"Wedding Photography", type:"Photography", desc:"Timeless frames from your greatest day", img:"https://images.unsplash.com/photo-1519741497674-611481863552?w=400&q=70" },
+  { name:"Project Documentations", type:"Photography", desc:"Comprehensive visual documentation", img:"https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=70" },
+];
+
+const testimonialsData = [
+  { name:"Njeri Kamau", role:"Bride — Wedding Photography", text:"Yustom captured our day with such grace and attention. Every photo tells a story.", avatar:"https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&q=70" },
+  { name:"Kevin Mwangi", role:"Groom — Wedding Videography", text:"The wedding film had our entire family in tears — in the best way. Absolutely cinematic.", avatar:"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=70" },
+  { name:"Alicia Ndung'u", role:"Brand Director — Creative Shoot", text:"We hired Yustom for a major brand campaign and the results exceeded every expectation.", avatar:"https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=70" },
+  { name:"Ibrahim Hassan", role:"Developer — Real Estate", text:"The property walkthrough video sold the apartment in under two weeks. Best marketing investment.", avatar:"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=70" },
+  { name:"Fatuma Ochieng", role:"Documentary Subject", text:"He has a rare gift for making people feel seen without being intrusive.", avatar:"https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&q=70" },
+  { name:"Mark Kariuki", role:"Event Organizer", text:"We rely on Yustom for all our major documentation. Quality is consistently world-class.", avatar:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=70" },
+];
+
+const inquiries = [
+  { name:"Jane Njoki", email:"jane@email.com", phone:"+254711000001", service:"Wedding Photography", msg:"Hello, I'm getting married in June 2025 and would love to discuss photography packages. We're planning an outdoor ceremony in Karen.", date:"Mar 14, 2025", read:false },
+  { name:"Tom Okeyo", email:"tom@biz.com", phone:"+254722000002", service:"Real Estate Videography", msg:"We have a new listing in Runda and need a cinematic walkthrough video for marketing. Can we discuss pricing and availability?", date:"Mar 13, 2025", read:false },
+  { name:"Aisha Muthoni", email:"aisha@co.ke", phone:"+254733000003", service:"Creative Shoot", msg:"I run a fashion label and I'm looking for a photographer for an editorial campaign. I love your neon genesis shoot — that's the vibe I'm after.", date:"Mar 12, 2025", read:true },
+];
+
+const mediaImgs = [
+  "https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=200&q=70",
+  "https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=200&q=70",
+  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=70",
+  "https://images.unsplash.com/photo-1604514628550-37477afdf4e3?w=200&q=70",
+  "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=200&q=70",
+  "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&q=70",
+  "https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=70",
+  "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=200&q=70",
+  "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=200&q=70",
+  "https://images.unsplash.com/photo-1488229297570-58520851e68a?w=200&q=70",
+  "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=200&q=70",
+  "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=200&q=70",
+];
+
+const homepageSections = [
+  { name:"Hero Section", key:"hero", visible:true },
+  { name:"Brand Intro", key:"intro", visible:true },
+  { name:"Services / Categories", key:"services", visible:true },
+  { name:"Portfolio Grid", key:"portfolio", visible:true },
+  { name:"Featured Work", key:"featured", visible:true },
+  { name:"About Section", key:"about", visible:true },
+  { name:"Testimonials", key:"testimonials", visible:true },
+  { name:"Contact / Booking", key:"contact", visible:true },
+];
+
+// ====== AUTH ======
+function doLogin() {
+  const e = document.getElementById('loginEmail').value;
+  const p = document.getElementById('loginPass').value;
+  if (e === 'admin@infernopictures.co.ke' && p === 'admin123') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appLayout').classList.add('visible');
+    initDashboard();
+  } else {
+    document.getElementById('loginEmail').style.borderColor = 'var(--danger)';
+    document.getElementById('loginPass').style.borderColor = 'var(--danger)';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin(); });
+function doLogout() { location.reload(); }
+
+// ====== PANELS ======
+const panelTitles = {
+  overview: ['Dashboard','Overview'], portfolio: ['Portfolio','Items'], categories: ['Category','Management'],
+  media: ['Media','Library'], homepage: ['Homepage','Layout'], hero: ['Hero','Section'],
+  about: ['About','Section'], testimonials: ['Testimonial','Manager'], inquiries: ['Client','Inquiries'],
+  settings: ['Site','Settings']
+};
+const panelBtns = {
+  overview: '', portfolio: '+ Add Item', categories: '+ Add Category',
+  media: '↑ Upload', homepage: 'Publish Changes', hero: 'Save Hero',
+  about: 'Save About', testimonials: '+ Add Testimonial', inquiries: '', settings: 'Save All'
+};
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  const link = document.querySelector(`.sidebar-link[onclick*="${id}"]`);
+  if (link) link.classList.add('active');
+  const t = panelTitles[id] || [id, ''];
+  document.getElementById('topbarTitle').innerHTML = `${t[0]} <span>${t[1]}</span>`;
+  const btnLabel = panelBtns[id];
+  const topBtn = document.getElementById('topbarPrimaryBtn');
+  topBtn.textContent = btnLabel || '+ Add Item';
+  topBtn.style.display = btnLabel ? '' : 'none';
+  const btnActions = {
+    portfolio: openAddModal, categories: openCatModal, media: ()=>showToast('Upload dialog ✓','success'),
+    testimonials: openTestimonialModal, homepage: ()=>showToast('Changes published ✓','success'),
+    hero: ()=>showToast('Hero saved ✓','success'), about: ()=>showToast('About saved ✓','success'),
+    settings: ()=>showToast('Settings saved ✓','success'),
+  };
+  topBtn.onclick = btnActions[id] || openAddModal;
+}
+
+// ====== RENDER FUNCTIONS ======
+function initDashboard() {
+  renderOverviewThumbs();
+  renderPortfolioTable();
+  renderCatGrid();
+  renderMediaLib();
+  renderSectionEditor();
+  renderTestimonialCards();
+  renderInquiries();
+}
+
+function renderOverviewThumbs() {
+  const el = document.getElementById('overviewThumbs');
+  mediaImgs.slice(0,6).forEach(src => {
+    el.innerHTML += `<div class="media-thumb"><img src="${src}" alt="" loading="lazy"><div class="media-thumb-overlay">🔍</div></div>`;
+  });
+}
+
+function renderPortfolioTable() {
+  const tbody = document.getElementById('portfolioTableBody');
+  tbody.innerHTML = '';
+  portfolioItems.forEach(item => {
+    tbody.innerHTML += `
+    <tr>
+      <td><input type="checkbox" class="checkbox"></td>
+      <td><img src="${item.img}" class="td-thumb" alt=""></td>
+      <td><div class="td-title">${item.title}</div></td>
+      <td><span class="td-cat">${item.category}</span></td>
+      <td><span class="badge ${item.type}">${item.type === 'video' ? '▶ Video' : '◆ Photo'}</span></td>
+      <td>${item.featured ? '<span class="badge featured">★ Featured</span>' : '<span style="color:var(--muted);font-size:11px;">—</span>'}</td>
+      <td><span class="badge ${item.status}">${item.status.charAt(0).toUpperCase()+item.status.slice(1)}</span></td>
+      <td class="td-actions">
+        <button class="action-btn">Edit</button>
+        <button class="action-btn ${item.featured ? '' : 'success'}">★</button>
+        <button class="action-btn danger">Delete</button>
+      </td>
+    </tr>`;
+  });
+}
+
+function renderCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = '';
+  categoriesData.forEach(cat => {
+    grid.innerHTML += `
+    <div class="cat-card">
+      <img src="${cat.img}" class="cat-img" alt="${cat.name}" loading="lazy">
+      <div class="cat-body">
+        <div class="cat-name">${cat.name}</div>
+        <div class="cat-type">${cat.type}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${cat.desc}</div>
+        <div class="cat-actions">
+          <button class="action-btn" onclick="showToast('Edit category ✓')">Edit</button>
+          <button class="action-btn danger" onclick="showToast('Category deleted','danger')">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  });
+}
+
+function renderMediaLib() {
+  const grid = document.getElementById('mediaLibGrid');
+  grid.innerHTML = '';
+  mediaImgs.forEach((src, i) => {
+    grid.innerHTML += `
+    <div class="media-thumb" style="aspect-ratio:1;position:relative;">
+      <img src="${src}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+      <div class="media-thumb-overlay" style="flex-direction:column;gap:8px;font-size:11px;padding:8px;">
+        <span onclick="showToast('Image copied to clipboard ✓')">📋</span>
+        <span onclick="showToast('Image deleted','danger')">🗑</span>
+      </div>
+    </div>`;
+  });
+}
+
+function renderSectionEditor() {
+  const editor = document.getElementById('sectionEditor');
+  editor.innerHTML = '';
+  homepageSections.forEach((sec, i) => {
+    editor.innerHTML += `
+    <div class="section-row" draggable="true">
+      <span class="drag-handle">⠿</span>
+      <span style="color:var(--muted);font-size:11px;width:20px;">${i+1}</span>
+      <span class="section-name">${sec.name}</span>
+      <button class="toggle ${sec.visible ? 'on' : ''} section-visible" onclick="this.classList.toggle('on');showToast('Section visibility updated ✓')"></button>
+    </div>`;
+  });
+}
+
+function renderTestimonialCards() {
+  const grid = document.getElementById('testimonialCards');
+  grid.innerHTML = '';
+  testimonialsData.forEach((t, i) => {
+    grid.innerHTML += `
+    <div class="test-card">
+      <button class="action-btn remove danger" onclick="this.parentElement.remove();showToast('Testimonial removed','danger')">✕</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <img src="${t.avatar}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid var(--border2);" alt="">
+        <div>
+          <div class="test-author">${t.name}</div>
+          <div class="test-role">${t.role}</div>
+        </div>
+      </div>
+      <div class="test-quote">"${t.text}"</div>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <button class="action-btn" onclick="showToast('Edit testimonial ✓')">Edit</button>
+        <button class="toggle on" onclick="this.classList.toggle('on');showToast('Visibility toggled ✓')"></button>
+        <span style="font-size:11px;color:var(--muted);margin:auto 0;">Show on site</span>
+      </div>
+    </div>`;
+  });
+}
+
+function renderInquiries() {
+  const list = document.getElementById('inquiryList');
+  list.innerHTML = '';
+  inquiries.forEach(inq => {
+    list.innerHTML += `
+    <div class="inquiry-card ${inq.read ? '' : 'unread'}">
+      <div class="inquiry-avatar">${inq.name.charAt(0)}</div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <div class="inquiry-name">${inq.name}</div>
+          <span class="badge ${inq.read ? 'published' : 'unread'}" style="${inq.read ? '' : ''}">${inq.read ? 'Read' : 'New'}</span>
+        </div>
+        <div class="inquiry-service">${inq.service}</div>
+        <div class="inquiry-msg">${inq.msg}</div>
+        <div class="inquiry-meta">${inq.email} · ${inq.phone} · ${inq.date}</div>
+      </div>
+      <div class="inquiry-actions">
+        <button class="action-btn success" onclick="showToast('Reply drafted ✓','success')">Reply</button>
+        <button class="action-btn" onclick="showToast('Marked as read ✓')">Mark Read</button>
+        <button class="action-btn danger" onclick="this.closest('.inquiry-card').remove();showToast('Deleted','danger')">Delete</button>
+      </div>
+    </div>`;
+  });
+}
+
+// SEARCH / FILTER TABLE
+function filterTable(q) {
+  document.querySelectorAll('#portfolioTableBody tr').forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+function filterTableCat(cat) {
+  document.querySelectorAll('#portfolioTableBody tr').forEach(row => {
+    if (!cat) { row.style.display = ''; return; }
+    row.style.display = row.textContent.includes(cat) ? '' : 'none';
+  });
+}
+
+// MODALS
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function openCatModal() { document.getElementById('catModal').classList.add('open'); }
+function openTestimonialModal() { document.getElementById('testModal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
